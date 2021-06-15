@@ -1,4 +1,4 @@
-# Vault and Consul stack for GKE
+# Vault, Consul and Waypoint stack for GKE
 
 This repository is a Terraform configuration to deploy Consul and/or Vault for demo purposes in a Kubernetes cluster in GCP (GKE). It does the following depending on the Terraform parameters configured (they are explained [later in this README](#terraform-parameters)):
 
@@ -6,6 +6,7 @@ This repository is a Terraform configuration to deploy Consul and/or Vault for d
 * It deploys [Consul with Helm](https://www.consul.io/docs/k8s/installation/install) and uploads the `values.yaml` to a GCS bucket 
 * It deploys [Vault  with Helm](https://www.vaultproject.io/docs/platform/k8s/helm) and uploads the `values.yaml` to a GCS bucket
 * It creates a `kubeconfig` file for your GKE and uploads the file into the GCS bucket
+* It deploys [Waypoint server](https://www.waypointproject.io/docs/server/run) using a customized `statefulSet` for K8s
 
 
 
@@ -240,3 +241,4 @@ $ waypoint up
 * Improving Terraform outputs
 * Add some replication features for Vault deployment
 * Add some federation features for Consul deployment
+* Include the possibility to connect Consul and Vault depending on Terraform parameters
