@@ -1,0 +1,77 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: ${namespace}
+  labels:
+    app: postgres
+    project: boundary
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: postgres
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: postgres
+  namespace: ${namespace}
+  labels:
+    project: boundary
+automountServiceAccountToken: true
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: ${namespace}
+  labels:
+    app: postgres
+    project: boundary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        service: postgres
+        app: postgres
+      annotations:
+        # consul.hashicorp.com/connect-inject: "true"
+        # consul.hashicorp.com/connect-service: "postgres"
+        # consul.hashicorp.com/connect-service-protocol: "tcp"
+    spec:
+      serviceAccountName: postgres
+      containers:
+        - name: postgres
+          image: postgres
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: boundary
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+          livenessProbe:
+            exec:
+              command:
+                - "psql"
+                - "-w"
+                - "-U"
+                - "postgres"
+                - "-d"
+                - "boundary"
+                - "-c"
+                - "SELECT"
+                - "1"

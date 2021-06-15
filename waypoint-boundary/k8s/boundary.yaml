@@ -1,0 +1,167 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: boundary-controller
+  namespace: ${namespace}
+  labels:
+    app: boundary-controller
+    project: boundary
+spec:
+  type: ClusterIP
+  ports:
+    - name: boundary
+      port: 9200
+      targetPort: 9200
+    - name: controller
+      port: 9201
+      targetPort: 9201
+    - name: worker
+      port: 9202
+      targetPort: 9202
+  selector:
+    app: boundary
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: boundary
+  namespace: ${namespace}
+  labels:
+    project: boundary
+automountServiceAccountToken: true
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: boundary-config
+  namespace: ${namespace}
+  labels:
+    project: boundary
+data:
+  boundary.hcl: |
+    disable_mlock = true
+    controller {
+      name = "kubernetes-controller"
+      description = "A controller for a kubernetes demo!"
+      database {
+          url = "env://BOUNDARY_PG_URL"
+      }
+      public_cluster_addr = "localhost"
+    }
+    worker {
+      name = "kubernete-worker"
+      description = "A worker for a kubernetes demo"
+      address = "localhost"
+      controllers = ["localhost"]
+      public_addr = "localhost"
+    }
+    listener "tcp" {
+      address = "0.0.0.0"
+      purpose = "api"
+      tls_disable = true
+    }
+    listener "tcp" {
+      address = "0.0.0.0"
+      purpose = "cluster"
+      tls_disable = true
+    }
+    listener "tcp" {
+      address = "0.0.0.0"
+      purpose = "proxy"
+      tls_disable = true
+    }
+    kms "aead" {
+      purpose = "root"
+      aead_type = "aes-gcm"
+      key = "sP1fnF5Xz85RrXyELHFeZg9Ad2qt4Z4bgNHVGtD6ung="
+      key_id = "global_root"
+    }
+    kms "aead" {
+      purpose = "worker-auth"
+      aead_type = "aes-gcm"
+      key = "8fZBjCUfN0TzjEGLQldGY4+iE9AkOvCfjh7+p0GtRBQ="
+      key_id = "global_worker-auth"
+    }
+    kms "aead" {
+      purpose = "recovery"
+      aead_type = "aes-gcm"
+      key = "8fZBjCUfN0TzjEGLQldGY4+iE9AkOvCfjh7+p0GtRBQ="
+      key_id = "global_recovery"
+    }
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: boundary
+  namespace: ${namespace}
+  labels:
+    app: boundary
+    project: boundary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: boundary
+      service: boundary
+  template:
+    metadata:
+      labels:
+        app: boundary
+        service: boundary
+      annotations:
+        # consul.hashicorp.com/connect-inject: "true"
+        # consul.hashicorp.com/connect-service: "boundary"
+    spec:
+      serviceAccountName: boundary
+      volumes:
+        - name: boundary-config
+          configMap:
+            name: boundary-config
+      initContainers:
+        - name: boundary-init
+          image: "${artifact.image}:${artifact.tag}"
+          command:
+            - "/bin/sh"
+            - "-c"
+          args:
+            - "boundary database init -config /boundary/boundary.hcl"
+          volumeMounts:
+            - name: boundary-config
+              mountPath: /boundary
+              readOnly: true
+          env:
+            - name: "HOSTNAME"
+              value: "boundary"
+            - name: "BOUNDARY_PG_URL"
+              value: "postgresql://postgres:postgres@postgres:5432/boundary?sslmode=disable"
+
+      containers:
+        - name: boundary
+          image: hashicorp/boundary:0.2.3
+          command:
+            - "/bin/sh"
+            - "-c"
+          args:
+            - "boundary server -config /boundary/boundary.hcl"
+          volumeMounts:
+            - name: boundary-config
+              mountPath: /boundary
+              readOnly: true
+          env:
+            - name: "HOSTNAME"
+              value: "boundary"
+            - name: "BOUNDARY_PG_URL"
+              value: "postgresql://postgres:postgres@postgres:5432/boundary?sslmode=disable"
+            ## This values are for Waypoint entrypoint variables
+            %{ for k,v in entrypoint.env }
+            - name: ${k}
+              value: "${v}"
+            %{ endfor }
+          ports:
+            - containerPort: 9200
+            - containerPort: 9201
+            - containerPort: 9202
+
