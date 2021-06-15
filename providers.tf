@@ -1,6 +1,6 @@
 terraform {
   required_version = ">= 0.15.0"
-  backend "remote"{}
+  # backend "remote"{}
   required_providers {
     google = {
       source = "hashicorp/google"

@@ -98,10 +98,10 @@ terraform {
 EOF
 ```
 
-Then, init your project as usual, but pointing out to the [remote backend](https://www.terraform.io/docs/language/settings/backends/remote.html) you just created:
+Then, init your project as usual, but now it is pointing out to the [remote backend](https://www.terraform.io/docs/language/settings/backends/remote.html) you just created:
 
 ```
-$ terraform init -backend-config=backend.tf
+$ terraform init
 Initializing modules...
 
 Initializing the backend...

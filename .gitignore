@@ -28,6 +28,7 @@ override.tf.json
 
 backend*.hcl
 backend-dr.hcl
+backend.tf
 
 # This files are not supposed to upload
 ## variables file to edit TFC
