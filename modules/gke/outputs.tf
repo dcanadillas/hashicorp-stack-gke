@@ -31,6 +31,6 @@ output "kubeconfig" {
     user_password = data.google_container_cluster.gke_cluster.master_auth.0.password,
     oauth_token = nonsensitive(data.google_client_config.current.access_token)
   })
-  sensitive = true
+  # sensitive = true
 }
   

@@ -2,10 +2,10 @@
 
 This repository is a Terraform configuration to deploy Consul and/or Vault for demo purposes in a Kubernetes cluster in GCP (GKE). It does the following depending on the Terraform parameters configured (they are explained [later in this README](#terraform-parameters)):
 
-* It creates a GKE cluster 
+* It creates a GKE cluster (you can use an existing cluster if `create_gke` terraform variable is set to `false`)
 * It deploys [Consul with Helm](https://www.consul.io/docs/k8s/installation/install) and uploads the `values.yaml` to a GCS bucket 
 * It deploys [Vault  with Helm](https://www.vaultproject.io/docs/platform/k8s/helm) and uploads the `values.yaml` to a GCS bucket
-* It creates a `kubeconfig` file for your GKE and uploads the file into the GCS bucket
+* It creates a `kubeconfig` file for your GKE cluster (if created) and uploads the file into the GCS bucket
 * It deploys [Waypoint server](https://www.waypointproject.io/docs/server/run) using a customized `statefulSet` for K8s
 
 
@@ -31,6 +31,7 @@ This Terraform configuration is parametrized with the following variables (which
 * `node_type`: "The node type and size for your K8s cluster (n1-standard-2 by default)"
 * `gcp_zone`: "GCP zone for your cluster"
 * `cluster_name`: "A name for your GKE cluster. This will be used also in some file names to identify your yaml files"
+* `create_gke`: "Set it to false if you want to use an existing GKE cluster (default is `true`)
 * `nodes`: "Number of nodes for your cluster (3 by default)
 * `regional_k8s`: "If you want to use a regional GKE cluster (master per zone)"
 * `owner`: "An owner name to tag some GCP resources"

@@ -1,4 +1,5 @@
 module "gke" {
+    count = var.create_gke ? 1 : 0
     source = "./modules/gke"
     gcp_project = var.gcp_project
     gcp_region = var.gcp_region
@@ -40,7 +41,8 @@ module "vault" {
     vault_version = var.vault_version
     cluster_endpoint = data.google_container_cluster.primary.endpoint
     cluster_name = var.cluster_name
-    ca_certificate = module.gke.ca_certificate
+    # ca_certificate = module.gke.ca_certificate
+    ca_certificate = data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate
     config_bucket = var.config_bucket
     gcp_service_account = var.gcp_service_account
     key_ring = var.key_ring
@@ -60,8 +62,10 @@ module "waypoint" {
 
 
 resource "google_storage_bucket_object" "kubeconfig" {
+  depends_on = [module.gke]
   count = var.config_bucket != "" ? 1 : 0
   name   = "${var.cluster_name}-kubeconfig-${formatdate("YYMMDD_HHmm",timestamp())}.yml"
-  content = nonsensitive(module.gke.kubeconfig)
+#   content = nonsensitive(module.gke.kubeconfig)
+  content = module.gke[0].kubeconfig
   bucket = var.config_bucket
 }

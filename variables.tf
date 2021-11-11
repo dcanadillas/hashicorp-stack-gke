@@ -12,6 +12,10 @@ variable "node_type" {
 variable "gcp_zone" {
   description = "availability zones"
 }
+variable "create_gke" {
+  description = "Set it to true if you want to create the GKE cluster or false if using an existing cluster."
+  default = true
+}
 variable "cluster_name" {
   description = "Name of your cluster  "
 }
