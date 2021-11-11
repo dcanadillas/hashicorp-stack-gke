@@ -11,6 +11,7 @@ locals {
     kms_creds = kubernetes_secret.google-application-credentials.metadata[0].name,
     http = var.tls == "enabled" ? "https" : "http",
     tls = var.tls
+    license_secret = var.vault_license == null ? "" : kubernetes_secret.vault-license[0].metadata[0].name
     })
 
   hostnames = [ for i in range(0,var.nodes) : "vault-${i}"]
@@ -23,6 +24,9 @@ data "google_service_account" "owner_project" {
 resource "kubernetes_namespace" "vault" {
   metadata {
     name = var.vault_namespace
+  }
+  lifecycle {
+    ignore_changes = [metadata]
   }
 }
 
@@ -52,6 +56,17 @@ resource "kubernetes_secret" "certs" {
   }
 }
 
+resource "kubernetes_secret" "vault-license" {
+  count = var.vault_license == null ? 0 : 1
+  metadata {
+    name = "vault-license"
+    namespace = kubernetes_namespace.vault.metadata.0.name
+  }
+  data = {
+    "license" = var.vault_license
+  }
+}
+
 
 # Because we are executing remotely using TFC/TFE we want to save our templates in a Cloud bucket
 resource "google_storage_bucket_object" "vault-config" {
@@ -70,7 +85,7 @@ resource "helm_release" "vault" {
   chart  = "vault"
   create_namespace = false
   namespace = kubernetes_namespace.vault.metadata.0.name
-  force_update = true
+  force_update = false
 
   values = [
       local.vaultvalues

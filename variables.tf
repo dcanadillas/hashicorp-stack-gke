@@ -100,6 +100,10 @@ variable "vault_key" {
   description = "Vault cert key"
   default = ""
 }
+variable "vault_license" {
+  description = "License for Vault Enterprise"
+  default = null
+}
 variable "key_ring" {
   description = "GCP Key ring to use"
 }

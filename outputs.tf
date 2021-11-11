@@ -1,5 +1,5 @@
 locals {
-  kubeconfig = var.create_gke ? nonsensitive(module.gke[0].kubeconfig) : "No kubeconfig for existing cluster"
+  kubeconfig = var.create_gke ? module.gke[0].kubeconfig : "No kubeconfig for existing cluster"
 }
 
 output "gke_endpoints" {

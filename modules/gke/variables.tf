@@ -38,6 +38,6 @@ variable "default_network" {
 }
 variable "k8s_version" {
   description = "K8s version to deploy in the format 1.xx"
-  default = "1.19"
+  default = "1.20"
 }
 

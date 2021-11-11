@@ -10,6 +10,13 @@ server:
     tag: "${vault_version}"
     pullPolicy: IfNotPresent
   updateStrategyType: "OnDelete"
+  
+  enterpriseLicense:
+    # The name of the Kubernetes secret that holds the enterprise license. The
+    # secret must be in the same namespace that Vault is installed into.
+    secretName: "${license_secret}"
+    # The key within the Kubernetes secret that holds the enterprise license.
+    secretKey: "license"
 
   readinessProbe:
     # ready if unsealed, either active or standby or performancestandby
@@ -132,3 +139,5 @@ ui:
   serviceType: "LoadBalancer"
   # serviceNodePort: null
   externalPort: 8200
+csi:
+  enabled: true

@@ -51,6 +51,7 @@ module "vault" {
     vault_key = var.vault_key
     crypto_key = var.crypto_key
     tls = "disabled"
+    vault_license = var.vault_license
 }
 
 module "waypoint" {
@@ -66,6 +67,33 @@ resource "google_storage_bucket_object" "kubeconfig" {
   count = var.config_bucket != "" ? 1 : 0
   name   = "${var.cluster_name}-kubeconfig-${formatdate("YYMMDD_HHmm",timestamp())}.yml"
 #   content = nonsensitive(module.gke.kubeconfig)
-  content = module.gke[0].kubeconfig
+  content = var.create_gke ? module.gke[0].kubeconfig : templatefile("${path.root}/templates/kubeconfig.yaml", {
+    cluster_name = data.google_container_cluster.primary.endpoint,
+    endpoint =  data.google_container_cluster.primary.endpoint,
+    user_name ="admin",
+    cluster_ca = data.google_container_cluster.primary.master_auth.0.cluster_ca_certificate,
+    client_cert = data.google_container_cluster.primary.master_auth.0.client_certificate,
+    client_cert_key = data.google_container_cluster.primary.master_auth.0.client_key,
+    user_password = data.google_container_cluster.primary.master_auth.0.password,
+    oauth_token = nonsensitive(data.google_client_config.default.access_token)
+  })
   bucket = var.config_bucket
 }
+
+# resource "google_storage_bucket_object" "kubeconfig" {
+#   depends_on = [module.gke]
+#   count = var.config_bucket != "" ? 1 : 0
+#   name   = "${var.cluster_name}-kubeconfig-${formatdate("YYMMDD_HHmm",timestamp())}.yml"
+# #   content = nonsensitive(module.gke.kubeconfig)
+#   content = templatefile("${path.root}/templates/kubeconfig.yaml", {
+#     cluster_name = data.google_container_cluster.primary.endpoint,
+#     endpoint =  data.google_container_cluster.primary.endpoint,
+#     user_name ="admin",
+#     cluster_ca = data.google_container_cluster.primary.master_auth.0.cluster_ca_certificate,
+#     client_cert = data.google_container_cluster.primary.master_auth.0.client_certificate,
+#     client_cert_key = data.google_container_cluster.primary.master_auth.0.client_key,
+#     user_password = data.google_container_cluster.primary.master_auth.0.password,
+#     oauth_token = nonsensitive(data.google_client_config.default.access_token)
+#   })
+#   bucket = var.config_bucket
+# }

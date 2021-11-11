@@ -15,7 +15,7 @@ global:
   enableConsulNamespaces: true
 %{endif ~}
 server:
-  enabled: trueterraform de
+  enabled: true
   # Create a K8s secret with:
   # `kubectl create secret generic consul-ent-license --from-literal="key=$(cat <your_path>/consul.hclic)" -n consul-cluster`
 %{if enterprise && license != null ~}  

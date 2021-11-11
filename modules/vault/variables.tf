@@ -51,6 +51,9 @@ variable "vault_ca" {
 variable "vault_key" {
   description = "Vault key of certificate"
 }
+variable "vault_license" {
+  description = "Enterprise license text"
+}
 variable "tls" {
   description = "Enabling/Disabling HTTPS"
 }

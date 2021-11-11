@@ -1,3 +1,9 @@
+locals {
+  waypointvalues = templatefile("${path.root}/templates/waypoint.yaml",{
+    waypoint_version = var.waypoint_version,
+    })
+}
+
 
 resource "kubernetes_namespace" "waypoint" {
   metadata {
@@ -6,149 +12,164 @@ resource "kubernetes_namespace" "waypoint" {
   }
 }
 
-resource "kubernetes_service" "waypoint" {
-  metadata {
-    name = "waypoint"
-    namespace = kubernetes_namespace.waypoint.metadata.0.name
-    labels = {
-      app = "waypoint-server"
-    }
-  }
-  spec {
-    selector = {
-      app = "waypoint-server"
-    }
+resource "helm_release" "waypoint" {
+  name = "waypoint"
+  repository = "https://helm.releases.hashicorp.com"
+  chart  = "waypoint"
+  create_namespace = false
+  namespace = kubernetes_namespace.waypoint.metadata.0.name
+  force_update = false
 
-    port {
-      name = "https"
-      port = 9702
-      target_port = 9702
-    }
-    port {
-      name = "grpc"
-      port = 9701
-      target_port = 9701
-    }
-
-    type = "LoadBalancer"
-  }
+  values = [
+      local.waypointvalues
+  ]
 }
 
-resource "kubernetes_stateful_set" "waypoint" {
-  metadata {
-    labels = {
-      app = kubernetes_service.waypoint.metadata.0.labels.app
-    }
 
-    name = "waypoint-server"
-    namespace = kubernetes_namespace.waypoint.metadata.0.name
-  }
+# THE FOLLOWING IS TO INSTALL WITHOUT HELM (before version 0.6.0)
+# resource "kubernetes_service" "waypoint" {
+#   metadata {
+#     name = "waypoint"
+#     namespace = kubernetes_namespace.waypoint.metadata.0.name
+#     labels = {
+#       app = "waypoint-server"
+#     }
+#   }
+#   spec {
+#     selector = {
+#       app = "waypoint-server"
+#     }
 
-  spec {
-    replicas = 1
+#     port {
+#       name = "https"
+#       port = 9702
+#       target_port = 9702
+#     }
+#     port {
+#       name = "grpc"
+#       port = 9701
+#       target_port = 9701
+#     }
 
-    selector {
-      match_labels = {
-        app = kubernetes_service.waypoint.metadata.0.labels.app
-      }
-    }
+#     type = "LoadBalancer"
+#   }
+# }
 
-    service_name = kubernetes_service.waypoint.metadata.0.name
+# resource "kubernetes_stateful_set" "waypoint" {
+#   metadata {
+#     labels = {
+#       app = kubernetes_service.waypoint.metadata.0.labels.app
+#     }
 
-    template {
-      metadata {
-        labels = {
-          app = kubernetes_service.waypoint.metadata.0.labels.app
-        }
+#     name = "waypoint-server"
+#     namespace = kubernetes_namespace.waypoint.metadata.0.name
+#   }
 
-        annotations = {}
-      }
+#   spec {
+#     replicas = 1
 
-      spec {
+#     selector {
+#       match_labels = {
+#         app = kubernetes_service.waypoint.metadata.0.labels.app
+#       }
+#     }
 
-        container {
-          name = "server"
-          image = "hashicorp/waypoint:${var.waypoint_version}"
-          image_pull_policy = "Always"
+#     service_name = kubernetes_service.waypoint.metadata.0.name
 
-          env {
-            name = "HOME"
-            value = "/data"
-          }
+#     template {
+#       metadata {
+#         labels = {
+#           app = kubernetes_service.waypoint.metadata.0.labels.app
+#         }
 
-          args = [
-            "server",
-            "run",
-            "-accept-tos",
-            "-vvv",
-            "-db=/data/data.db",
-            "-listen-grpc=0.0.0.0:9701",
-            "-listen-http=0.0.0.0:9702"
-          ]
+#         annotations = {}
+#       }
 
-          volume_mount {
-            name       = "data"
-            mount_path = "/data"
-          }
+#       spec {
 
-          liveness_probe {
-            http_get {
-              path   = "/"
-              port   = "http"
-              scheme = "HTTPS"
-            }
+#         container {
+#           name = "server"
+#           image = "hashicorp/waypoint:${var.waypoint_version}"
+#           image_pull_policy = "Always"
 
-            initial_delay_seconds = 30
-            timeout_seconds       = 1
-          }
+#           env {
+#             name = "HOME"
+#             value = "/data"
+#           }
 
-          resources {
-            requests = {
-              cpu    = "100m"
-              memory = "256Mi"
-            }
-          }
-          termination_message_path = "/dev/termination-log"
-          termination_message_policy = "File"
-        }
-        dns_policy = "ClusterFirst"
-        image_pull_secrets {
-          name = "github"
-        }
-        restart_policy = "Always"
-        security_context {
-          # run_as_user = 0
-          fs_group = 1000
-        }
+#           args = [
+#             "server",
+#             "run",
+#             "-accept-tos",
+#             "-vvv",
+#             "-db=/data/data.db",
+#             "-listen-grpc=0.0.0.0:9701",
+#             "-listen-http=0.0.0.0:9702"
+#           ]
 
-        termination_grace_period_seconds = 300
+#           volume_mount {
+#             name       = "data"
+#             mount_path = "/data"
+#           }
+
+#           liveness_probe {
+#             http_get {
+#               path   = "/"
+#               port   = "http"
+#               scheme = "HTTPS"
+#             }
+
+#             initial_delay_seconds = 30
+#             timeout_seconds       = 1
+#           }
+
+#           resources {
+#             requests = {
+#               cpu    = "100m"
+#               memory = "256Mi"
+#             }
+#           }
+#           termination_message_path = "/dev/termination-log"
+#           termination_message_policy = "File"
+#         }
+#         dns_policy = "ClusterFirst"
+#         image_pull_secrets {
+#           name = "github"
+#         }
+#         restart_policy = "Always"
+#         security_context {
+#           # run_as_user = 0
+#           fs_group = 1000
+#         }
+
+#         termination_grace_period_seconds = 300
         
-      }
-    }
+#       }
+#     }
 
-    update_strategy {
-      type = "RollingUpdate"
+#     update_strategy {
+#       type = "RollingUpdate"
 
-      rolling_update {
-        partition = 0
-      }
-    }
+#       rolling_update {
+#         partition = 0
+#       }
+#     }
 
-    volume_claim_template {
-      metadata {
-        name = "data"
-      }
+#     volume_claim_template {
+#       metadata {
+#         name = "data"
+#       }
 
-      spec {
-        access_modes       = ["ReadWriteOnce"]
-        storage_class_name = "standard"
+#       spec {
+#         access_modes       = ["ReadWriteOnce"]
+#         storage_class_name = "standard"
 
-        resources {
-          requests = {
-            storage = "1Gi"
-          }
-        }
-      }
-    }
-  }
-}
+#         resources {
+#           requests = {
+#             storage = "1Gi"
+#           }
+#         }
+#       }
+#     }
+#   }
+# }
