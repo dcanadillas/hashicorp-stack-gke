@@ -5,8 +5,8 @@
 #   account_id = var.service_account
 # }
 # # Collect client config for GCP
-data "google_client_config" "current" {
-}
+# data "google_client_config" "current" {
+# }
 # data "google_service_account" "owner_project" {
 #   account_id = var.service_account
 # }

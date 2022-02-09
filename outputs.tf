@@ -1,5 +1,14 @@
 locals {
-  kubeconfig = var.create_gke ? module.gke[0].kubeconfig : "No kubeconfig for existing cluster"
+  kubeconfig = templatefile("${path.root}/templates/kubeconfig.yaml", {
+    cluster_name = data.google_container_cluster.primary.endpoint,
+    endpoint =  data.google_container_cluster.primary.endpoint,
+    user_name ="admin",
+    cluster_ca = data.google_container_cluster.primary.master_auth.0.cluster_ca_certificate,
+    client_cert = data.google_container_cluster.primary.master_auth.0.client_certificate,
+    client_cert_key = data.google_container_cluster.primary.master_auth.0.client_key,
+    user_password = data.google_container_cluster.primary.master_auth.0.password,
+    oauth_token = nonsensitive(data.google_client_config.default.access_token)
+  })
 }
 
 output "gke_endpoints" {

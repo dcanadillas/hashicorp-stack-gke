@@ -10,6 +10,7 @@ module "gke" {
     regional_k8s = var.regional_k8s
     numnodes = var.nodes
     owner = var.owner
+    k8s_version = var.k8s_version
 }
 
 module "consul" {
@@ -43,7 +44,7 @@ module "vault" {
     cluster_name = var.cluster_name
     # ca_certificate = module.gke.ca_certificate
     ca_certificate = data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate
-    config_bucket = var.config_bucket
+    config_bucket = google_storage_bucket.yaml_values.name
     gcp_service_account = var.gcp_service_account
     key_ring = var.key_ring
     vault_cert = var.vault_cert
@@ -62,12 +63,27 @@ module "waypoint" {
 }
 
 
+resource "google_storage_bucket" "yaml_values" {
+  name          = var.config_bucket
+  location      = "EU"
+  force_destroy = true
+
+  # lifecycle_rule {
+  #   condition {
+  #     age = 3
+  #   }
+  #   action {
+  #     type = "Delete"
+  #   }
+  # }
+}
+
 resource "google_storage_bucket_object" "kubeconfig" {
   depends_on = [module.gke]
   count = var.config_bucket != "" ? 1 : 0
   name   = "${var.cluster_name}-kubeconfig-${formatdate("YYMMDD_HHmm",timestamp())}.yml"
 #   content = nonsensitive(module.gke.kubeconfig)
-  content = var.create_gke ? module.gke[0].kubeconfig : templatefile("${path.root}/templates/kubeconfig.yaml", {
+  content = templatefile("${path.root}/templates/kubeconfig.yaml", {
     cluster_name = data.google_container_cluster.primary.endpoint,
     endpoint =  data.google_container_cluster.primary.endpoint,
     user_name ="admin",
@@ -77,7 +93,7 @@ resource "google_storage_bucket_object" "kubeconfig" {
     user_password = data.google_container_cluster.primary.master_auth.0.password,
     oauth_token = nonsensitive(data.google_client_config.default.access_token)
   })
-  bucket = var.config_bucket
+  bucket = google_storage_bucket.yaml_values.name
 }
 
 # resource "google_storage_bucket_object" "kubeconfig" {

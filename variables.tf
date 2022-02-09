@@ -40,6 +40,12 @@ variable "gcp_service_account" {
   description = "GCP service account to use for Vault auto-unseal KMS"
 }
 
+variable "k8s_version" {
+  description = "K8s version to deploy in the format 1.xx"
+  default = "1.21"
+}
+
+
 # Variable for Consul
 variable "consul_enterprise" {
   description = "Usin Enterprise version if true"
