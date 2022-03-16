@@ -1,6 +1,10 @@
 global:
   enabled: true
+%{ if tls == "disabled" ~}
   tlsDisable: true
+%{ else }
+  tlsDisable: false
+%{ endif ~}
 injector:
   # True if you want to enable vault agent injection.
   enabled: true
@@ -18,16 +22,16 @@ server:
     # The key within the Kubernetes secret that holds the enterprise license.
     secretKey: "license"
 
-  readinessProbe:
-    # ready if unsealed, either active or standby or performancestandby
-    enabled: true
-    path: /v1/sys/health?standbycode=204&performancestandbycode=204&drsecondarycode=204
+  # readinessProbe:
+  #   # ready if unsealed, either active or standby or performancestandby
+  #   enabled: true
+  #   path: /v1/sys/health?standbycode=204&performancestandbycode=204&drsecondarycode=204
 
-  livenessProbe:
-    # alive if vault is successfully responding to requests
-    enabled: true
-    path: /v1/sys/health?standbyok=true&perfstandbyok=true&sealedcode=204&uninitcode=204&drsecondarycode=204
-    initialDelaySeconds: 30
+  # livenessProbe:
+  #   # alive if vault is successfully responding to requests
+  #   enabled: true
+  #   path: /v1/sys/health?standbyok=true&perfstandbyok=true&sealedcode=204&uninitcode=204&drsecondarycode=204
+  #   initialDelaySeconds: 30
 
   postStart: []
   # - /bin/sh
@@ -38,7 +42,7 @@ server:
     GOOGLE_REGION: "${gcp_region}"
     GOOGLE_PROJECT: "${gcp_project}"
     GOOGLE_APPLICATION_CREDENTIALS: "/vault/userconfig/${kms_creds}/credentials.json"
-  # VAULT_CACERT: /vault/userconfig/vault-server-tls/vault.ca
+    VAULT_CACERT: /vault/userconfig/vault-server-tls/vault_ca.crt
 
   # extraVolumes is a list of extra volumes to mount. These will be exposed
   # to Vault in the path `/vault/userconfig/<name>/`. The value below is
@@ -64,7 +68,7 @@ server:
   service:
     enabled: true
     # clusterIP: None
-    type: "NodePort"
+    # type: "NodePort"
     # nodePort: 30000
     # port: 8200
     # targetPort: 8200
@@ -105,7 +109,7 @@ server:
 %{ if tls == "enabled" ~}
           tls_cert_file = "/vault/userconfig/vault-server-tls/vault.crt"
           tls_key_file = "/vault/userconfig/vault-server-tls/vault.key"
-          tls_ca_cert_file = "/vault/userconfig/vault-server-tls/vault.ca"
+          tls_ca_cert_file = "/vault/userconfig/vault-server-tls/vault_ca.crt"
 %{ endif ~}
         }
         storage "raft" {
@@ -114,7 +118,7 @@ server:
           retry_join {
             leader_api_addr = "${http}://${leader_host}.vault-internal:8200"
 %{ if tls == "enabled" ~}
-            leader_ca_cert_file = "/vault/userconfig/vault-server-tls/vault.ca"
+            leader_ca_cert_file = "/vault/userconfig/vault-server-tls/vault_ca.crt"
             leader_client_cert_file = "/vault/userconfig/vault-server-tls/vault.crt"
             leader_client_key_file = "/vault/userconfig/vault-server-tls/vault.key"
 %{ endif ~}

@@ -1,12 +1,12 @@
-terraform {
-  required_version = ">=0.14 "
-  required_providers {
-    google = {
-      source = "hashicorp/google"
-      version = "3.67.0"
-    }
-  }
-}
+# terraform {
+#   required_version = ">=0.14 "
+#   required_providers {
+#     google = {
+#       source = "hashicorp/google"
+#       version = "3.67.0"
+#     }
+#   }
+# }
 
 # data "vault_generic_secret" "gcp_secret" {
 #   path = "gcp/token/token-roleset"

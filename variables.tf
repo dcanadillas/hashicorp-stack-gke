@@ -116,6 +116,13 @@ variable "key_ring" {
 variable "crypto_key" {
   description = "GCP Key ring to use"
 }
+variable "tls" {
+  description = "TLS enabled or disabled for Vault"
+  default = "disabled"
+}
+variable "own_certs" {
+  description = "Set to \"true\" if providing own certificates in variables"
+}
 
 # Variables for Waypoint
 variable "enable_waypoint" {
@@ -131,4 +138,25 @@ variable "waypoint_version" {
 variable "waypoint_namespace" {
   description = "Namespace for Waypoint deployment"
   default = "waypoint"
+}
+
+# Variables for TLS generation
+# variable "ca_org" {
+#   description = "Org CA"
+# }
+
+# variable "common_name" {
+#   description = "Common name to use with Certs"
+# }
+
+# variable "ca_common_name" {
+#   description = "Common name to use with Certs"
+# }
+
+variable "domains" {
+  description = "Domains to include in the certs"
+}
+variable "tls_algorithm" {
+  description = "Domains to include in the certs"
+  default = "RSA"
 }

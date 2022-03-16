@@ -50,9 +50,9 @@ resource "kubernetes_secret" "certs" {
     namespace = kubernetes_namespace.vault.metadata.0.name
   }
   data = {
-    "vault.crt" = base64encode(var.vault_cert)
-    "vault.ca" = base64encode(var.vault_ca)
-    "vault.key" = base64encode(var.vault_key)
+    "vault.crt" = var.vault_cert
+    "vault_ca.crt" = var.vault_ca
+    "vault.key" = var.vault_key
   }
 }
 

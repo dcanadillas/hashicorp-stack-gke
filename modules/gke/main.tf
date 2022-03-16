@@ -49,8 +49,8 @@ resource "google_container_cluster" "primary" {
   subnetwork = google_compute_subnetwork.container_subnetwork.0.self_link
   min_master_version = data.google_container_engine_versions.k8sversion.latest_master_version
   master_auth {
-    username = ""
-    password = ""
+    # username = ""
+    # password = ""
 
     client_certificate_config {
       issue_client_certificate = false
