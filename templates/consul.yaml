@@ -14,8 +14,6 @@ global:
 %{if enterprise ~} 
   enableConsulNamespaces: true
 %{endif ~}
-server:
-  enabled: true
   # Create a K8s secret with:
   # `kubectl create secret generic consul-ent-license --from-literal="key=$(cat <your_path>/consul.hclic)" -n consul-cluster`
 %{if enterprise && license != null ~}  
@@ -23,6 +21,8 @@ server:
     secretName: consul-ent-license
     secretKey: key
 %{endif ~}
+server:
+  enabled: true
   replicas: ${nodes}
   bootstrapExpect: ${nodes}
   disruptionBudget:

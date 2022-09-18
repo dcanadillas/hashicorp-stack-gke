@@ -43,3 +43,4 @@ vault-init.log
 vault.yaml
 # consul.yaml
 nginx_values.yaml
+pyvars_file.py
