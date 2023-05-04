@@ -24,9 +24,7 @@ locals {
 
 
 data "google_client_config" "default" {
-  # depends_on = [
-  #   module.gke
-  # ]
+
 }
 
 # Defer reading the cluster data until the GKE cluster exists.
@@ -43,24 +41,27 @@ provider "google" {
 }
 provider "helm" {
   kubernetes {
-    # host  = "https://${data.google_container_cluster.primary.endpoint}"
+    host  = "https://${data.google_container_cluster.primary.endpoint}"
     # host = "https://${module.gke[0].cluster_endpoint}"
-    host = local.host
+    # host = local.host
     token = data.google_client_config.default.access_token
-    # cluster_ca_certificate = base64decode(
-    #   data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate,
-    # )
-    cluster_ca_certificate = local.ca_cert
+    # token = data.google_service_account_access_token.default.access_token
+
+    cluster_ca_certificate = base64decode(
+      data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate,
+    )
+    # cluster_ca_certificate = local.ca_cert
   }
 }
 
 provider "kubernetes" {
-  # host  = "https://${data.google_container_cluster.primary.endpoint}"
+  host  = "https://${data.google_container_cluster.primary.endpoint}"
   # host = "https://${module.gke[0].cluster_endpoint}"
-  host = local.host
+  # host = local.host
   token = data.google_client_config.default.access_token
-  # cluster_ca_certificate = base64decode(
-  #   data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate,
-  # )
-  cluster_ca_certificate = local.ca_cert
+  # token = data.google_service_account_access_token.default.access_token
+  cluster_ca_certificate = base64decode(
+    data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate,
+  )
+  # cluster_ca_certificate = local.ca_cert
 }

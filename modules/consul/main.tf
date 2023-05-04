@@ -1,6 +1,16 @@
+
+resource "random_uuid" "bootstraptoken" {
+}
+
+resource "random_id" "bucket" {
+  byte_length = 4
+}
+
 locals {
   consul_token_key = "bootstraptoken"
-  consul_token = uuid()
+  consul_token = random_uuid.bootstraptoken.result
+  # Let's use a variable to check that consul version is greater than 1.14, so we use Consul Dataplane
+  consul_dataplane = replace(regex("\\d*\\.\\d*\\.\\d*",var.consul_version),".","") >= 1140 ? true : false
   consulvalues = templatefile("${path.root}/templates/consul.yaml",{
       # version = "1.8.4",
       image = var.consul_enterprise ? "hashicorp/consul-enterprise:${var.consul_version}" : "consul:${var.consul_version}",
@@ -12,6 +22,7 @@ locals {
       secret = kubernetes_secret.bootstrap.metadata.0.name
       key = local.consul_token_key
       token = local.consul_token
+      client_enabled = local.consul_dataplane ? false : true
   })
 }
 
@@ -19,7 +30,7 @@ locals {
 # Because we are executing remotely using TFC/TFE we want to save our templates in a Cloud bucket
 resource "google_storage_bucket_object" "consul-config" {
   count = var.config_bucket != "" ? 1 : 0
-  name   = "${var.cluster_name}-consul-${formatdate("YYMMDD_HHmm",timestamp())}.yml"
+  name   = "${var.cluster_name}-consul-${random_id.bucket.dec}.yml"
   content = local.consulvalues
   bucket = var.config_bucket
 }

@@ -25,9 +25,9 @@ variable "regional_k8s" {
 variable "owner" {
   description = "Owner name to tag clusters"
 }
-# variable "service_account" {
-#   description = "Service Account to be used as scope permissions"
-# }
+variable "service_account" {
+  description = "Service Account to be used as scope permissions"
+}
 variable "default_gke" {
   description = "Set it to true if you want to speed up GKE cluster creation by creating a default NodePool"
   default = false
@@ -40,4 +40,11 @@ variable "k8s_version" {
   description = "K8s version to deploy in the format 1.xx"
   default = "1.20"
 }
-
+variable "secure_boot" {
+  description = "Enabling secure boot in default deployments"
+  default = false
+}
+variable "private_nodes" {
+  description = "Set this to true to enable the private cluster feature"
+  default = false
+}

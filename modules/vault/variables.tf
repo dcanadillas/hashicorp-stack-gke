@@ -57,3 +57,7 @@ variable "vault_license" {
 variable "tls" {
   description = "Enabling/Disabling HTTPS"
 }
+variable "log_level" {
+  description = "Log level for Vault servers. \"debug\" is default"
+  default = "debug"
+}

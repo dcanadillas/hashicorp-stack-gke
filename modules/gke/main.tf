@@ -33,6 +33,10 @@ data "google_container_engine_versions" "k8sversion" {
   version_prefix = "${var.k8s_version}."
 }
 
+data "google_service_account" "owner_project" {
+  account_id = var.service_account
+}
+
 resource "google_container_cluster" "primary" {
   # provider = google-beta
   # project = var.gcp_project
@@ -56,11 +60,27 @@ resource "google_container_cluster" "primary" {
       issue_client_certificate = false
     }
   }
+  enable_shielded_nodes = true
+
+  private_cluster_config {
+    enable_private_nodes = var.private_nodes
+    enable_private_endpoint = false
+    master_ipv4_cidr_block = "10.3.0.0/28" 
+  }
+  # This is needed for IP aliasing when using private clusters
+  ip_allocation_policy {
+    
+  }
+
   node_config {
     machine_type = var.node_type
     disk_type = "pd-ssd"
+    service_account = data.google_service_account.owner_project.email
     metadata = {
       disable-legacy-endpoints = "true"
+    }
+    shielded_instance_config {
+      enable_secure_boot = var.secure_boot
     }
 
     oauth_scopes = [
@@ -68,13 +88,15 @@ resource "google_container_cluster" "primary" {
       "https://www.googleapis.com/auth/monitoring",
       "https://www.googleapis.com/auth/compute",
       "https://www.googleapis.com/auth/devstorage.read_write",
-      "https://www.googleapis.com/auth/cloud-platform"
+      "https://www.googleapis.com/auth/cloud-platform",
+      "https://www.googleapis.com/auth/cloudkms"
     ]
 
     tags = [
       "${var.owner}-gke"
     ]
   }
+  
 }
 
 resource "google_container_node_pool" "primary_nodes" {
@@ -89,6 +111,7 @@ resource "google_container_node_pool" "primary_nodes" {
   node_config {
     machine_type = var.node_type
     disk_type = "pd-ssd"
+    service_account = data.google_service_account.owner_project.email
     metadata = {
       disable-legacy-endpoints = "true"
     }
@@ -98,7 +121,8 @@ resource "google_container_node_pool" "primary_nodes" {
       "https://www.googleapis.com/auth/monitoring",
       "https://www.googleapis.com/auth/compute",
       "https://www.googleapis.com/auth/devstorage.read_write",
-      "https://www.googleapis.com/auth/cloud-platform"
+      "https://www.googleapis.com/auth/cloud-platform",
+      "https://www.googleapis.com/auth/cloudkms"
     ]
 
     tags = [
@@ -109,4 +133,24 @@ resource "google_container_node_pool" "primary_nodes" {
   #   min_node_count = 0
   #   max_node_count = var.nodes*2
   # }
+}
+
+# If GKE cluster is private we need to create a Cloud NAT to reach internet
+resource "google_compute_router" "router" {
+  count = var.private_nodes ? 1 : 0
+  project = var.gcp_project
+  name    = "nat-router"
+  network = google_container_cluster.primary.network
+  region  = var.gcp_region
+}
+
+module "cloud-nat" {
+  count = var.private_nodes ? 1 : 0
+  source                             = "terraform-google-modules/cloud-nat/google"
+  version                            = "~> 2.0"
+  project_id                         = var.gcp_project
+  region                             = var.gcp_region
+  router                             = google_compute_router.router[0].name
+  name                               = "nat-config"
+  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 }

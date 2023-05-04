@@ -27,7 +27,7 @@ output "vault-yaml" {
   value = module.vault.*.vault-yaml
 }
 output "consul-yaml" {
-  value = module.consul.*.consul-yaml
+  value = module.consul != []  ? module.consul.*.consul-yaml[0] : null
 }
 output "vault_ca" {
   value = module.vault[*].vault_ca
@@ -36,5 +36,15 @@ output "vault_ca" {
 output "kubeconfig" {
   # value = var.config_bucket == "" ? nonsensitive(module.gke[0].kubeconfig) : "https://storage.cloud.google.com/${google_storage_bucket_object.kubeconfig[0].bucket}/${google_storage_bucket_object.kubeconfig[0].output_name}"
   value = var.config_bucket == "" ? local.kubeconfig : "https://storage.cloud.google.com/${google_storage_bucket_object.kubeconfig[0].bucket}/${google_storage_bucket_object.kubeconfig[0].output_name}"
+}
+
+output "gcp_token" {
+  value = data.google_service_account_access_token.default.access_token
+  sensitive = true
+}
+
+output "client_token" {
+  value = data.google_client_config.default.access_token
+  sensitive = true
 }
 

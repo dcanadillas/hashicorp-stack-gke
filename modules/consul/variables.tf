@@ -56,3 +56,8 @@ variable "nodes" {
 variable "owner" {
   description = "Owner name to tag clusters"
 }
+# variable "dataplane" {
+#   description = "Enable dataplate"
+#   type = bool
+#   default = true
+# }

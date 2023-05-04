@@ -160,3 +160,11 @@ variable "tls_algorithm" {
   description = "Domains to include in the certs"
   default = "RSA"
 }
+variable "gke_secure_boot" {
+  description = "To enable GKE secure boot by default"
+  default = false
+}
+variable "gke_private_nodes" {
+  description = "Set this to true to enable Private GKE cluster nodes"
+  default = false
+}

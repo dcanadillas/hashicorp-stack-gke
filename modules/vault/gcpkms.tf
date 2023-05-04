@@ -1,6 +1,6 @@
 # Keyrings in GCP cannot be deleted, so we generate a random number for the name
 resource "random_id" "gcp_kms_key" {
-  byte_length = 6
+  byte_length = 4
   prefix = "${var.crypto_key}-"
 }
 
@@ -10,12 +10,15 @@ data "google_kms_key_ring" "key_ring" {
 }
 
 locals {
-   depends_on = [ google_kms_key_ring.key_ring, data.google_kms_key_ring.key_ring ]
+  #  depends_on = [ google_kms_key_ring.key_ring, data.google_kms_key_ring.key_ring ]
    gcp_keyring = data.google_kms_key_ring.key_ring.name != null ? data.google_kms_key_ring.key_ring.id : google_kms_key_ring.key_ring[0].id
 }
 
 # Create a KMS key ring
 resource "google_kms_key_ring" "key_ring" {
+  depends_on = [
+    data.google_kms_key_ring.key_ring
+  ]
    count = data.google_kms_key_ring.key_ring.name != null ? 0 : 1
    project  = var.gcp_project
    name     = var.key_ring

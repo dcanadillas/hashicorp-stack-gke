@@ -6,11 +6,15 @@ global:
   # imageEnvoy: $${envoy}
   tls:
     enabled: true
+    enableAutoEncrypt: true
   acls:
     manageSystemACLs: true
     bootstrapToken:
       secretName: ${secret}
       secretKey: ${key}
+  metrics:
+    enabled: true
+    enableGatewayMetrics: true
 %{if enterprise ~} 
   enableConsulNamespaces: true
 %{endif ~}
@@ -33,7 +37,7 @@ server:
     {
       "acl": {
         "tokens": {
-          "master": "${token}",
+          "initial_management": "${token}",
           "agent": "${token}"
         }
       }
@@ -61,9 +65,14 @@ connectInject:
     mirroringK8S: true
 %{endif ~}    
 client:
-  enabled: true
+  enabled: ${client_enabled}
   grpc: true
 controller:
+  enabled: true
+
+prometheus:
+  enabled: true
+grafana:
   enabled: true
 
 ingressGateways:
@@ -80,3 +89,12 @@ ingressGateways:
     # affinity: ""
   gateways:
     - name: ingress-gateway
+
+# apiGateway:
+#   enabled: true
+#   logLevel: debug
+#   image: hashicorp/consul-api-gateway:0.5.0
+#   managedGatewayClass:
+#     enabled: true
+#     serviceType: LoadBalancer
+#     # useHostPorts: true

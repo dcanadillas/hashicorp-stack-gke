@@ -14,6 +14,7 @@ server:
     tag: "${vault_version}"
     pullPolicy: IfNotPresent
   updateStrategyType: "OnDelete"
+  logLevel: "${log_level}"
   
   enterpriseLicense:
     # The name of the Kubernetes secret that holds the enterprise license. The
@@ -43,6 +44,8 @@ server:
     GOOGLE_PROJECT: "${gcp_project}"
     GOOGLE_APPLICATION_CREDENTIALS: "/vault/userconfig/${kms_creds}/credentials.json"
     VAULT_CACERT: /vault/userconfig/vault-server-tls/vault_ca.crt
+    # We need to increase the timeout to not get a context cancelled when working with Google KMS and private GKE clusters
+    VAULT_CLIENT_TIMEOUT: "300s"
 
   # extraVolumes is a list of extra volumes to mount. These will be exposed
   # to Vault in the path `/vault/userconfig/<name>/`. The value below is
@@ -109,7 +112,7 @@ server:
 %{ if tls == "enabled" ~}
           tls_cert_file = "/vault/userconfig/vault-server-tls/vault.crt"
           tls_key_file = "/vault/userconfig/vault-server-tls/vault.key"
-          tls_ca_cert_file = "/vault/userconfig/vault-server-tls/vault_ca.crt"
+          tls_client_ca_file = "/vault/userconfig/vault-server-tls/vault_ca.crt"
 %{ endif ~}
         }
         storage "raft" {
