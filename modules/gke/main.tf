@@ -65,7 +65,7 @@ resource "google_container_cluster" "primary" {
   private_cluster_config {
     enable_private_nodes = var.private_nodes
     enable_private_endpoint = false
-    master_ipv4_cidr_block = "10.3.0.0/28" 
+    # master_ipv4_cidr_block = "10.3.0.0/28" 
   }
   # This is needed for IP aliasing when using private clusters
   ip_allocation_policy {

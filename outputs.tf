@@ -1,9 +1,9 @@
 locals {
   kubeconfig = templatefile("${path.root}/templates/kubeconfig.yaml", {
-    cluster_name = data.google_container_cluster.primary.endpoint,
-    endpoint =  data.google_container_cluster.primary.endpoint,
+    cluster_name = var.create_gke ? module.gke[0].cluster_endpoint : data.google_container_cluster.primary[0].endpoint,
+    endpoint =  var.create_gke ? module.gke[0].cluster_endpoint : data.google_container_cluster.primary[0].endpoint,
     user_name ="admin",
-    cluster_ca = data.google_container_cluster.primary.master_auth.0.cluster_ca_certificate,
+    cluster_ca = base64encode(local.ca_cert),
     client_cert = "",
     client_cert_key = "",
     # client_cert = data.google_container_cluster.primary.master_auth.0.client_certificate,
@@ -15,7 +15,7 @@ locals {
 
 output "gke_endpoints" {
   # value = module.gke.cluster_endpoint
-  value = data.google_container_cluster.primary.endpoint
+  value = var.create_gke ? module.gke[0].cluster_endpoint : data.google_container_cluster.primary[0].endpoint
 }
 output "consul_token" {
   value = module.consul.*.acl_token

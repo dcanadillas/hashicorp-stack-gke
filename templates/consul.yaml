@@ -39,7 +39,8 @@ server:
         "tokens": {
           "initial_management": "${token}",
           "agent": "${token}"
-        }
+        },
+      "default_policy": "deny"
       }
     }
 ui:

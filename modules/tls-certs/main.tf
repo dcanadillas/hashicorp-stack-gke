@@ -3,13 +3,15 @@
 # CA private key
 resource "tls_private_key" "ca" {
   algorithm   = var.algorithm
-  ecdsa_curve = "${var.algorithm}" == "ECDSA" ? var.ecdsa_curve : ""
-  rsa_bits = "${var.algorithm}" == "RSA" ? var.rsa_bits : ""
+  # ecdsa_curve = "${var.algorithm}" == "ECDSA" ? var.ecdsa_curve : "P224"
+  # rsa_bits = "${var.algorithm}" == "RSA" ? var.rsa_bits : "2048"
+  ecdsa_curve = var.ecdsa_curve
+  rsa_bits = var.rsa_bits
 }
 
 # CA certificate
 resource "tls_self_signed_cert" "ca" {
-  key_algorithm   = tls_private_key.ca.algorithm
+  # key_algorithm   = tls_private_key.ca.algorithm
   private_key_pem = tls_private_key.ca.private_key_pem
   is_ca_certificate = true 
 
@@ -40,7 +42,7 @@ resource "tls_self_signed_cert" "ca" {
 # Server private key
 resource "tls_private_key" "server" {
   # count       = var.servers
-  algorithm   = "RSA"
+  algorithm   = var.algorithm
   #ecdsa_curve = "P521"
 }
 
@@ -52,7 +54,7 @@ resource "tls_cert_request" "server" {
 
   # key_algorithm   = tls_private_key.server[count.index].algorithm
   # private_key_pem = tls_private_key.server[count.index].private_key_pem
-  key_algorithm   = tls_private_key.server.algorithm
+  # key_algorithm   = tls_private_key.server.algorithm
   private_key_pem = tls_private_key.server.private_key_pem
 
   subject {
@@ -87,7 +89,7 @@ resource "tls_locally_signed_cert" "server" {
 #   cert_request_pem = element(tls_cert_request.server.*.cert_request_pem, count.index)
   # cert_request_pem = tls_cert_request.server[count.index].cert_request_pem
   cert_request_pem = tls_cert_request.server.cert_request_pem
-  ca_key_algorithm = tls_private_key.ca.algorithm
+  # ca_key_algorithm = tls_private_key.ca.algorithm
   ca_private_key_pem = tls_private_key.ca.private_key_pem
   ca_cert_pem        = tls_self_signed_cert.ca.cert_pem
 
