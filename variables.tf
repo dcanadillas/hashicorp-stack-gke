@@ -56,7 +56,8 @@ variable "consul_version" {
   default = "1.15.3"
   validation {
     # Check that the version is > 1.14.0
-    condition = replace(var.consul_Version,".","") >= 1140
+    condition = replace(var.consul_version,".","") >= 1140
+    error_message = "Consul Version needs to be 1.14.0 or newer. Please, check the Compatibility Matrix: https://www.consul.io/docs/k8s/upgrade/compatibility#supported-consul-versions"
   }
 }
 variable "consul_dc" {
@@ -80,6 +81,7 @@ variable "chart_version" {
   validation {
     # Check that the version is > 1.14.0
     condition = replace(var.chart_version,".","") >= 100
+    error_message = "Consul Helm chart version needs to be 1.0.0. or newer. Please, check the Compatibility Matrix: https://www.consul.io/docs/k8s/upgrade/compatibility#supported-consul-versions"
   }
 }
 variable "nodes" {
@@ -124,7 +126,7 @@ variable "key_ring" {
 variable "crypto_key" {
   description = "GCP Key ring to use"
 }
-variable "tls" {
+variable "vault_tls" {
   description = "TLS enabled or disabled for Vault"
   default = "disabled"
 }

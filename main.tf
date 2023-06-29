@@ -97,7 +97,7 @@ module "vault" {
   vault_key = var.own_certs ? var.vault_key : module.tls.vault_key
   create_kms = var.create_kms
   crypto_key = var.crypto_key
-  tls = var.tls
+  tls = var.vault_tls
   vault_license = var.vault_license
 }
 
