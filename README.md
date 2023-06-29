@@ -35,23 +35,24 @@ This Terraform configuration is parametrized with the following variables (which
 * `nodes`: "Number of nodes for your cluster (3 by default)
 * `regional_k8s`: "If you want to use a regional GKE cluster (master per zone)"
 * `owner`: "An owner name to tag some GCP resources"
-* `config_bucket`: "The previously created GCS bucket to upload your file. Leave this empty ("") if you don't want to upload your Helm * values in a bucket."
+* `config_bucket`: "A GCS bucket to create to upload your Helm values files. Leave this empty ("") if you don't want to upload your Helm * values in a bucket."
 * `default_gke`: "Set this to `true` if you want to use the default node pool for GKE. This speeds  GKE creation, but you won't have the * same control on the node pool at the creation stage"
 * `default_network`: "Set this to `true` if you want to use 'default' network in GCP for your cluster. If `false` a network and subnetwork * will be created to host your K8s cluster nodes"
 * `consul_namespace`: "The K8s namespace to deploy Consul"
 * `consul_license`: "A Consul license if using Consul Enterprise"
 * `consul_enterprise`: "Set this to true to deploy Consul Enterprise"
-* `consul_version`: "The Consul version to deploy (e.g. '1.10.0-ent-beta2')"
-* `chart_version`: "The Helm chart version to use for Consul deployment (e.g. '0.32.0-beta2')"
+* `consul_version`: "The Consul version to deploy (e.g. '1.10.0-ent-beta2')". Default version is `1.15.3`
+* `chart_version`: "The Helm chart version to use for Consul deployment (e.g. '0.32.0-beta2')". Default version is `1.1.2`
 * `enable_consul`: "Set this to `true` to deploy Consul (by default is `true`)"
 * `enable_vault`: "Set this to `true` to deploy Vault (by default is `true`)
 * `gcp_service_account`: "The GCP service account to use [KMS Vault auto-unseal](https://learn.hashicorp.com/tutorials/vault/autounseal-gcp-kms?in=vault/auto-unseal)"
 * `key_ring`: "The KeyRing to use for the [KMS Vault auto-unseal](https://learn.hashicorp.com/tutorials/vault/autounseal-gcp-kms?in=vault/auto-unseal)"
-* `vault_version`: "Vault version to deploy. (`1.7.2_ent` is the default value)"
+* `vault_version`: "Vault version to deploy. (`1.12.0_ent` is the default value)"
 * `enable_waypoint`: "Set this to `true` to deploy Waypoint as a stateful set in Kubernetes (by default is `true`)"
 * `waypoint_version`: "Waypoint version to deploy from the [docker container](https://hub.docker.com/r/hashicorp/waypoint/tags?page=1&ordering=last_updated) (by default `0.4.0` is used)"
 * `crypto_key`: "The key name in KMS for Vault auto-unseal"
-* `crypto_key`: "The key name in KMS for Vault auto-unseal"
+* `create_kms`: "Set this to false if the KMS keyring already exists from the `key_ring` value. (Default is `true`)"
+* `vault_tls`: "If you want to use TLS certificates for Vault
 
 
 

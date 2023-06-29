@@ -102,7 +102,7 @@ variable "enable_vault" {
 }
 variable "vault_version" {
   description = "Version of Vault to be deployed"
-  default = "1.12.0_ent"
+  default = "1.12.0"
 }
 variable "vault_ca" {
   description = "CA certificate for Vault"
@@ -132,6 +132,7 @@ variable "vault_tls" {
 }
 variable "own_certs" {
   description = "Set to \"true\" if providing own certificates in variables"
+  default = false
 }
 
 # Variables for Waypoint

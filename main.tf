@@ -12,11 +12,11 @@ data "google_service_account" "owner_project" {
   account_id = var.gcp_service_account
 }
 
-data "google_service_account_access_token" "default" {
-  target_service_account = data.google_service_account.owner_project.email
-  scopes                 = ["userinfo-email", "cloud-platform"]
-  lifetime               = "300s"
-}
+# data "google_service_account_access_token" "default" {
+#   target_service_account = data.google_service_account.owner_project.email
+#   scopes                 = ["userinfo-email", "cloud-platform"]
+#   lifetime               = "300s"
+# }
 
 module "gke" {
   count = var.create_gke ? 1 : 0
