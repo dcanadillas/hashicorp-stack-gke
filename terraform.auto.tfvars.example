@@ -1,0 +1,39 @@
+gcp_region = "europe-west1"
+gcp_project = "<my_gcp_project>"
+node_type = "n2-standard-2"
+gcp_zone = "europe-west1-c"
+cluster_name = "hashi-primary"
+create_gke = true
+nodes = 3
+regional_k8s = false
+owner = "<my_alias>"
+config_bucket = "hashistack"
+default_gke = true
+default_network = false
+consul_namespace = "consul"
+consul_version = "1.15.3"
+# consul_license = "<your_consul_license_if_using_Ent>"
+chart_version = "1.1.2"
+enable_consul = true
+enable_vault = true
+
+
+own_certs = false
+# If you put \"own_certs\" to \"true\", you can include your certificates in the following variables"
+# vault_ca = "-----BEGIN CERTIFICATE-----\nMIIDUjCC ... l4bw==\n-----END CERTIFICATE-----"
+# vault_cert = "------BEGIN CERTIFICATE-----\nMIID5 ... Jl4bw==\n-----END CERTIFICATE-----"
+# vault_key = "-----BEGIN RSA PRIVATE KEY-----\nMII ... G4s+F9\n-----END RSA PRIVATE KEY-----"
+
+
+
+gcp_service_account = "<my_service_account_name>"
+key_ring = "vault-keyring"
+crypto_key = "vault-key"
+vault_version = "1.12.0"
+# vault_license = "<your_vault_license_if_using_Ent>"
+
+enable_waypoint = true
+
+
+gke_private_nodes = false
+secure_boot = false
