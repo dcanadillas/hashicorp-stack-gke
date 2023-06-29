@@ -62,10 +62,10 @@ resource "tls_cert_request" "server" {
     organization = "HashiCorp Demo"
   }
 
-  dns_names = concat([
-    var.vaulthost,
-    "*.${var.vaulthost}",
-    "vault",
+  dns_names = concat(
+    var.vaulthosts,
+    [for i in var.vaulthosts: "*.${i}"],
+    ["vault",
     "vault.local",
     "vault.default.svc.cluster.local",
     "*.vault-internal",
@@ -73,8 +73,8 @@ resource "tls_cert_request" "server" {
     # "vault-server-sec-${count.index}",
     "localhost",
     "*.${var.common_name}"
-  ],
-  [for i in range(var.servers): "vault-${i}"]
+    ],
+    [for i in range(var.servers): "vault-${i}"]
   )
 
   ip_addresses = [

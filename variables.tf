@@ -56,7 +56,7 @@ variable "consul_version" {
   default = "1.15.3"
   validation {
     # Check that the version is > 1.14.0
-    condition = replace(var.consul_version,".","") >= 1140
+    condition = replace(trimsuffix(var.consul_version,"-ent"),".","") >= 1140
     error_message = "Consul Version needs to be 1.14.0 or newer. Please, check the Compatibility Matrix: https://www.consul.io/docs/k8s/upgrade/compatibility#supported-consul-versions"
   }
 }
@@ -166,6 +166,8 @@ variable "waypoint_namespace" {
 
 variable "domains" {
   description = "Domains to include in the certs"
+  type = list(string)
+  default = ["example.com"]
 }
 variable "tls_algorithm" {
   description = "Domains to include in the certs"

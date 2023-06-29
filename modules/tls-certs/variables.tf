@@ -20,8 +20,9 @@ variable "ca_organization" {
 variable "common_name" {
   default = "vault.local"
 }
-variable "vaulthost" {
-  description = "Domain for the cert"
+variable "vaulthosts" {
+  description = "Domains to include in the cert"
+  type = list(string)
 }
 # variable "compute_address" {
 #     description = "IP address. Can come "

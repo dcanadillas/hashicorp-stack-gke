@@ -36,4 +36,4 @@ enable_waypoint = true
 
 
 gke_private_nodes = false
-secure_boot = false
+gke_secure_boot = false

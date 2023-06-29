@@ -43,7 +43,7 @@ module "tls" {
     # ca_common_name = var.ca_common_name
     # ca_organization = var.ca_org
     # common_name = var.common_name
-    vaulthost = var.domains
+    vaulthosts = var.domains
     # compute_address = 
     servers = var.nodes
 
