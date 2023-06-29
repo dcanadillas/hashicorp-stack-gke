@@ -42,7 +42,7 @@ variable "gcp_service_account" {
 
 variable "k8s_version" {
   description = "K8s version to deploy in the format 1.xx"
-  default = "1.21"
+  default = "1.24"
 }
 
 
@@ -52,8 +52,12 @@ variable "consul_enterprise" {
   default = false
 }
 variable "consul_version" {
-  description = "Consul version"
-  default = "1.9.5"
+  description = "Consul version. The Consul Compatibility Matrix should be checked."
+  default = "1.15.3"
+  validation {
+    # Check that the version is > 1.14.0
+    condition = replace(var.consul_Version,".","") >= 1140
+  }
 }
 variable "consul_dc" {
   description = "Datacenter name for Consul servers"
@@ -72,7 +76,11 @@ variable "consul_namespace" {
 # }
 variable "chart_version" {
   description = "Consul Helm Chart version: https://www.consul.io/docs/k8s/upgrade/compatibility#supported-consul-versions"
-  default = "0.31.1"
+  default = "1.1.2"
+  validation {
+    # Check that the version is > 1.14.0
+    condition = replace(var.chart_version,".","") >= 100
+  }
 }
 variable "nodes" {
   description = "Number of nodes/pods of the cluster"
@@ -81,7 +89,7 @@ variable "owner" {
   description = "Owner name to tag clusters"
 }
 variable "enable_consul" {
-  description = "True if deploying Vault"
+  description = "True if deploying Consul"
   default = true
 }
 
@@ -92,7 +100,7 @@ variable "enable_vault" {
 }
 variable "vault_version" {
   description = "Version of Vault to be deployed"
-  default = "1.7.0_ent"
+  default = "1.12.0_ent"
 }
 variable "vault_ca" {
   description = "CA certificate for Vault"
@@ -167,4 +175,8 @@ variable "gke_secure_boot" {
 variable "gke_private_nodes" {
   description = "Set this to true to enable Private GKE cluster nodes"
   default = false
+}
+variable "create_kms" {
+  description = "Set this to false if the \"kms_keyring\" already exist and want to use it for the crypto_key."
+  default = true
 }

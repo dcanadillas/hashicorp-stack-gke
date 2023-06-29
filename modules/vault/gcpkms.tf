@@ -5,21 +5,23 @@ resource "random_id" "gcp_kms_key" {
 }
 
 data "google_kms_key_ring" "key_ring" {
+  count = var.create_kms ? 0 : 1
   name     = var.key_ring
   location = var.gcp_region
 }
 
 locals {
   #  depends_on = [ google_kms_key_ring.key_ring, data.google_kms_key_ring.key_ring ]
-   gcp_keyring = data.google_kms_key_ring.key_ring.id != null ? data.google_kms_key_ring.key_ring.id : google_kms_key_ring.key_ring[0].id
+  #  gcp_keyring = data.google_kms_key_ring.key_ring.id != null ? data.google_kms_key_ring.key_ring.id : google_kms_key_ring.key_ring[0].id
+   gcp_keyring = var.create_kms ? google_kms_key_ring.key_ring[0].id : data.google_kms_key_ring.key_ring[0].id
 }
 
 # Create a KMS key ring
 resource "google_kms_key_ring" "key_ring" {
-  depends_on = [
-    data.google_kms_key_ring.key_ring
-  ]
-   count = data.google_kms_key_ring.key_ring.random_id != null ? 0 : 1
+  # depends_on = [
+  #   data.google_kms_key_ring.key_ring
+  # ]
+  count = var.create_kms ? 1 : 0
    project  = var.gcp_project
    name     = var.key_ring
    location = var.gcp_region

@@ -36,6 +36,10 @@ variable "nodes" {
 variable "gcp_service_account" {
   description = "SA to create credentials for KMS auto-unseal"
 }
+variable "create_kms" {
+  description = "Set this to true if the key_ring needs to be created"
+  default = true
+}
 variable "key_ring" {
   description = "KMS Keyring name"
 }
