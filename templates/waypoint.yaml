@@ -11,13 +11,13 @@ runner:
     repository: "docker.io/hashicorp/waypoint"
     # tag: "0.6.0"
     pullPolicy: IfNotPresent
-    tag: "latest"
+    tag: "${waypoint_version}"
     # pullPolicy: Always
   odr:
     # The image to use for the on-demand runner.
     image:
       repository: "docker.io/hashicorp/waypoint-odr"
-      tag: "0.6.0"
+      tag: "${waypoint_version}"
       pullPolicy: IfNotPresent
       # tag: "latest"
       # pullPolicy: Always

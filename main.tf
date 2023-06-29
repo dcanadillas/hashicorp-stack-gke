@@ -1,6 +1,7 @@
 locals {
   # config_bucket = data.google_storage_bucket.yamls.self_link != null ? data.google_storage_bucket.yamls.name : google_storage_bucket.yaml_values.0.name
   config_bucket = var.config_bucket == "" ? var.config_bucket : google_storage_bucket.yaml_values.0.name 
+  vault_repo = can(regex(".*-ent$",var.vault_version)) ? "hashicorp/vault-enterprise" : "hashicorp/vault"
 }
 
 resource "random_id" "kubeconfig" {
@@ -99,6 +100,7 @@ module "vault" {
   crypto_key = var.crypto_key
   tls = var.vault_tls
   vault_license = var.vault_license
+  vault_repo = local.vault_repo
 }
 
 module "waypoint" {

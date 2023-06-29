@@ -21,7 +21,7 @@ variable "ca_certificate" {
 }
 variable "vault_version" {
   description = "Version of Vault to be deployed"
-  default = "1.7.0_ent"
+  default = "1.12.0_ent"
 }
 variable "config_bucket" {
   description = "Cloud bucket to save config generated files"
