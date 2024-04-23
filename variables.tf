@@ -79,7 +79,7 @@ variable "chart_version" {
   description = "Consul Helm Chart version: https://www.consul.io/docs/k8s/upgrade/compatibility#supported-consul-versions"
   default = "1.1.2"
   validation {
-    # Check that the version is > 1.14.0
+    # Check that the version is > 1.0.0
     condition = replace(var.chart_version,".","") >= 100
     error_message = "Consul Helm chart version needs to be 1.0.0. or newer. Please, check the Compatibility Matrix: https://www.consul.io/docs/k8s/upgrade/compatibility#supported-consul-versions"
   }

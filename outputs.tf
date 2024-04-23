@@ -21,10 +21,10 @@ output "consul_token" {
   value = module.consul.*.acl_token
 }
 output "consul_ui" {
-  value = ""
+  value = module.consul[0].consul_ui
 }
 output "vault-yaml" {
-  value = module.vault.*.vault-yaml
+  value = module.vault != [] ? module.vault.*.vault-yaml[0] : null
 }
 output "consul-yaml" {
   value = module.consul != []  ? module.consul.*.consul-yaml[0] : null
@@ -47,4 +47,3 @@ output "client_token" {
   value = data.google_client_config.default.access_token
   sensitive = true
 }
-

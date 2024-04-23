@@ -84,3 +84,14 @@ resource "helm_release" "consul" {
 
   wait = false
 }
+
+data "kubernetes_resource" "consul_ui_service" {
+  depends_on = [ helm_release.consul ]
+  api_version = "v1"
+  kind        = "Service"
+
+  metadata {
+    name      = "consul-ui"
+    namespace = var.consul_namespace
+  }
+}
