@@ -21,7 +21,7 @@ output "consul_token" {
   value = module.consul.*.acl_token
 }
 output "consul_ui" {
-  value = module.consul[0].consul_ui
+  value = module.consul != []  ? module.consul[0].consul_ui : null
 }
 output "vault-yaml" {
   value = module.vault != [] ? module.vault.*.vault-yaml[0] : null
