@@ -138,7 +138,13 @@ server:
         }
         replication {
           resolver_discover_servers = false
-        } 
+        }
+        reporting {
+          license {
+              enabled = false
+          }
+        }
+
 
 # Vault UI
 ui:

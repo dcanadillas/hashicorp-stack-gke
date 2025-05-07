@@ -68,6 +68,7 @@ resource "tls_cert_request" "server" {
     ["vault",
     "vault.local",
     "vault.default.svc.cluster.local",
+    "vault.vault.svc.cluster.local",
     "*.vault-internal",
     # Common
     # "vault-server-sec-${count.index}",

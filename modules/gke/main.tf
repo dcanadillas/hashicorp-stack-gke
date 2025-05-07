@@ -42,7 +42,7 @@ resource "google_container_cluster" "primary" {
   # project = var.gcp_project
   name     = var.gke_cluster
   location = var.regional_k8s ? var.gcp_region : var.gcp_zone
-  node_version = data.google_container_engine_versions.k8sversion.latest_node_version
+  # node_version = data.google_container_engine_versions.k8sversion.latest_node_version
   # We can't create a cluster with no node pool defined, but we want to only use
   # separately managed node pools. So we create the smallest possible default
   # node pool and immediately delete it.
@@ -71,6 +71,7 @@ resource "google_container_cluster" "primary" {
   ip_allocation_policy {
     
   }
+  deletion_protection = false
 
   node_config {
     machine_type = var.node_type
@@ -147,7 +148,7 @@ resource "google_compute_router" "router" {
 module "cloud-nat" {
   count = var.private_nodes ? 1 : 0
   source                             = "terraform-google-modules/cloud-nat/google"
-  version                            = "~> 2.0"
+  version                            = "~> 5.0"
   project_id                         = var.gcp_project
   region                             = var.gcp_region
   router                             = google_compute_router.router[0].name
